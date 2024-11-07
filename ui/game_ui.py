@@ -8,14 +8,14 @@ class GameUI:
 
     # Color mapping for adjacent mine numbers
     NUMBER_COLORS = {
-        1: '#0000FF',  # Bleu
-        2: '#008000',  # Vert
-        3: '#FF0000',  # Rouge
-        4: '#000080',  # Bleu foncé
-        5: '#800000',  # Bordeaux
+        1: '#0000FF',  # Blue
+        2: '#008000',  # Green
+        3: '#FF0000',  # Red
+        4: '#000080',  # Dark Blue
+        5: '#800000',  # Crimson
         6: '#008080',  # Cyan
-        7: '#000000',  # Noir
-        8: '#808080'  # Gris
+        7: '#000000',  # Black
+        8: '#808080'  # Grey
     }
 
     def __init__(self, root, game_board, on_cell_click, on_right_click, on_return_to_menu):
@@ -47,13 +47,14 @@ class GameUI:
         self.timer_label.grid(row=0, column=0, columnspan=self.game_board.width, pady=5)
 
         # Create cell buttons
+        style = {'width': 2, 'height': 1, 'font': ('TkDefaultFont', 10, 'bold')}
+
         for x in range(self.game_board.height):
             for y in range(self.game_board.width):
                 cell = self.game_board.cells[x][y]
                 cell.button = tk.Button(
                     self.frame,
-                    width=2,
-                    height=1,
+                    **style,
                     text="",
                     bg='lightgray',
                     relief=tk.RAISED
@@ -83,7 +84,8 @@ class GameUI:
             if cell.adjacent_mines > 0:
                 cell.button.config(
                     text=str(cell.adjacent_mines),
-                    fg=self.NUMBER_COLORS.get(cell.adjacent_mines, 'black')
+                    fg=self.NUMBER_COLORS.get(cell.adjacent_mines, 'black'),
+                    disabledforeground=self.NUMBER_COLORS.get(cell.adjacent_mines, 'black')
                 )
         elif cell.is_flagged:
             cell.button.config(
