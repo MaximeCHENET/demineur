@@ -30,7 +30,7 @@ class MenuUI:
         self.difficulty_var = tk.StringVar(value="Facile")
 
         # Set window size and center it on screen
-        self.root.geometry("400x400")
+        self.root.geometry("600x600")
         self.root.update_idletasks()
         window_width = self.root.winfo_width()
         window_height = self.root.winfo_height()

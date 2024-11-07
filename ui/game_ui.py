@@ -92,7 +92,7 @@ class GameUI:
         elif cell.is_flagged:
             cell.button.config(
                 text='🚩',
-                bg='red',
+                bg='light blue',
                 relief=tk.RAISED
             )
         else:

@@ -16,7 +16,7 @@ class MinesweeperGame:
         """Initialize the game window and core components."""
         self.root = tk.Tk()
         self.root.title("Démineur")
-        self.root.geometry("800x600")
+        self.root.geometry("1000x800")
 
         # Initialize core components
         self.score_manager = ScoreManager()
