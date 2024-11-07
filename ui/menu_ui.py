@@ -28,12 +28,25 @@ class MenuUI:
         self.width_var = tk.StringVar(value="10")
         self.mines_var = tk.StringVar(value="10")
         self.difficulty_var = tk.StringVar(value="Facile")
+
+        # Set window size and center it on screen
+        self.root.geometry("400x400")
+        self.root.update_idletasks()
+        window_width = self.root.winfo_width()
+        window_height = self.root.winfo_height()
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = (screen_width // 2) - (window_width // 2)
+        y = (screen_height // 2) - (window_height // 2)
+        self.root.geometry(f"+{x}+{y}")
+
         self.create_menu()
 
     def create_menu(self):
         """Create the main menu elements."""
+        # Frame to contain the menu centered with `place`
         self.frame = ttk.Frame(self.root, padding="20")
-        self.frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        self.frame.place(relx=0.5, rely=0.5, anchor="center")
 
         # Title
         title = ttk.Label(self.frame, text="Démineur", font=('TkDefaultFont', 24, 'bold'))

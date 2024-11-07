@@ -39,16 +39,18 @@ class GameUI:
 
     def create_game_board(self):
         """Create the game board UI elements."""
+        # Créer le cadre pour centrer la grille
         self.frame = ttk.Frame(self.root, padding="10")
-        self.frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        self.frame.place(relx=0.5, rely=0.5, anchor="center")
 
-        # Timer label
+        # Timer label centré
         self.timer_label = ttk.Label(self.frame, text="Temps: 0s")
         self.timer_label.grid(row=0, column=0, columnspan=self.game_board.width, pady=5)
 
-        # Create cell buttons
+        # Style pour les boutons de cellules
         style = {'width': 2, 'height': 1, 'font': ('TkDefaultFont', 10, 'bold')}
 
+        # Créer les boutons pour chaque cellule
         for x in range(self.game_board.height):
             for y in range(self.game_board.width):
                 cell = self.game_board.cells[x][y]
@@ -63,7 +65,7 @@ class GameUI:
                 cell.button.bind('<Button-1>', lambda e, x=x, y=y: self.on_cell_click(x, y))
                 cell.button.bind('<Button-3>', lambda e, x=x, y=y: self.on_right_click(x, y))
 
-        # Return to menu button
+        # Bouton de retour au menu, centré sous la grille
         back_button = ttk.Button(self.frame, text="Retour au menu", command=self.on_return_to_menu)
         back_button.grid(row=self.game_board.height + 1, column=0, columnspan=self.game_board.width, pady=10)
 
