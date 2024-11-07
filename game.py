@@ -53,7 +53,6 @@ class MinesweeperGame:
                                   self.on_cell_click, self.on_right_click,
                                   self.return_to_menu)
 
-            messagebox.showinfo("Nouvelle partie", "La partie va commencer!")
 
         except ValueError as e:
             messagebox.showerror("Erreur", str(e))
