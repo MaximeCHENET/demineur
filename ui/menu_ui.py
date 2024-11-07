@@ -71,11 +71,21 @@ class MenuUI:
         # Initially hide custom options
         self.custom_frame.grid_remove()
 
-        # Buttons
-        ttk.Button(self.frame, text="Nouvelle partie", command=self.start_game).grid(
-            row=3, column=0, columnspan=2, pady=10)
-        ttk.Button(self.frame, text="Meilleurs scores", command=self.on_show_scores).grid(
-            row=4, column=0, columnspan=2, pady=10)
+        # Buttons frame
+        buttons_frame = ttk.Frame(self.frame)
+        buttons_frame.grid(row=3, column=0, columnspan=2, pady=10)
+
+        # Game buttons
+        ttk.Button(buttons_frame, text="Nouvelle partie", command=self.start_game).grid(
+            row=0, column=0, pady=5, padx=5)
+        ttk.Button(buttons_frame, text="Meilleurs scores", command=self.on_show_scores).grid(
+            row=0, column=1, pady=5, padx=5)
+        ttk.Button(buttons_frame, text="Quitter", command=self.quit_game, style="Quit.TButton").grid(
+            row=1, column=0, columnspan=2, pady=10)
+
+        # Style pour le bouton Quitter
+        style = ttk.Style()
+        style.configure("Quit.TButton", foreground="red")
 
     def toggle_custom_options(self):
         """Show/hide custom game options based on difficulty selection."""
@@ -107,6 +117,11 @@ class MenuUI:
             messagebox.showerror("Erreur", "Veuillez entrer des nombres valides")
         except Exception as e:
             messagebox.showerror("Erreur", str(e))
+
+    def quit_game(self):
+        """Quit the game after confirmation."""
+        if messagebox.askokcancel("Quitter", "Voulez-vous vraiment quitter le jeu ?"):
+            self.root.quit()
 
     def destroy(self):
         """Clean up the UI elements."""
