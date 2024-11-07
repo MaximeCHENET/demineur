@@ -6,7 +6,7 @@ class MenuUI:
     """Main menu interface for the Minesweeper game."""
 
     DIFFICULTY_LEVELS = {
-        "Facile": {"height": 10, "width": 10, "mines": 10},
+        "Facile": {"height": 9, "width": 9, "mines": 10},
         "Moyen": {"height": 16, "width": 16, "mines": 40},
         "Difficile": {"height": 16, "width": 30, "mines": 99}
     }
