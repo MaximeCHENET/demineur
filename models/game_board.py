@@ -27,16 +27,45 @@ class GameBoard:
         """
         return [[Cell(x, y) for y in range(self.width)] for x in range(self.height)]
 
+    def _get_safe_zone_positions(self, first_x, first_y):
+        """Get positions that should be safe (no mines) around first click.
+
+        Args:
+            first_x (int): Row of first click
+            first_y (int): Column of first click
+
+        Returns:
+            set: Set of (x,y) tuples representing safe positions
+        """
+        safe_positions = set()
+        for dx in [-1, 0, 1]:
+            for dy in [-1, 0, 1]:
+                new_x, new_y = first_x + dx, first_y + dy
+                if 0 <= new_x < self.height and 0 <= new_y < self.width:
+                    safe_positions.add((new_x, new_y))
+        return safe_positions
+
     def place_mines(self, first_x, first_y):
-        """Place mines randomly on the board, avoiding the first clicked cell.
+        """Place mines randomly on the board, avoiding the first clicked cell and its neighbors.
 
         Args:
             first_x (int): Row of first click
             first_y (int): Column of first click
         """
-        positions = [(x, y) for x in range(self.height) for y in range(self.width)
-                     if (x, y) != (first_x, first_y)]
-        mine_positions = random.sample(positions, self.mines)
+        # Get positions that should be safe (no mines)
+        safe_positions = self._get_safe_zone_positions(first_x, first_y)
+
+        # Get all possible positions excluding safe zone
+        available_positions = [(x, y) for x in range(self.height) for y in range(self.width)
+                             if (x, y) not in safe_positions]
+
+        # Make sure we have enough positions for mines
+        max_mines = len(available_positions)
+        if self.mines > max_mines:
+            self.mines = max_mines
+
+        # Place mines randomly in available positions
+        mine_positions = random.sample(available_positions, self.mines)
 
         for x, y in mine_positions:
             self.cells[x][y].place_mine()
