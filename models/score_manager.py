@@ -1,3 +1,4 @@
+# score_manager.py
 import json
 from pathlib import Path
 import time
@@ -13,6 +14,13 @@ class ScoreManager:
             scores_file (str): Path to the scores file
         """
         self.scores_file = Path(scores_file)
+        self._ensure_file_exists()
+
+    def _ensure_file_exists(self):
+        """Create the scores file if it doesn't exist."""
+        if not self.scores_file.exists():
+            with open(self.scores_file, 'w') as f:
+                json.dump([], f)
 
     def save_score(self, player_name, elapsed_time, width, height, mines):
         """Save a new score to the high scores file.
@@ -39,19 +47,22 @@ class ScoreManager:
         }
 
         scores.append(new_score)
-        scores.sort(key=lambda x: x['time'])
+        # Trier d'abord par configuration puis par temps
+        scores.sort(key=lambda x: (
+            x['width'],
+            x['height'],
+            x['mines'],
+            x['time']
+        ))
 
         with open(self.scores_file, 'w') as f:
             json.dump(scores, f)
 
-    def get_high_scores(self, limit=10):
-        """Retrieve the high scores.
-
-        Args:
-            limit (int): Maximum number of scores to return
+    def get_high_scores(self):
+        """Retrieve all high scores.
 
         Returns:
-            list: List of high score dictionaries
+            list: List of all high score dictionaries
         """
         if not self.scores_file.exists():
             return []
@@ -59,4 +70,4 @@ class ScoreManager:
         with open(self.scores_file, 'r') as f:
             scores = json.load(f)
 
-        return scores[:limit]
+        return scores

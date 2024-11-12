@@ -1,52 +1,49 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+from .replay_dialog import ReplayDialog
 
 
 class MenuUI:
     """Main menu interface for the Minesweeper game."""
 
     DIFFICULTY_LEVELS = {
-        "Facile": {"height": 9, "width": 9, "mines": 10},
+        "Facile": {"height": 10, "width": 10, "mines": 10},
         "Moyen": {"height": 16, "width": 16, "mines": 40},
         "Difficile": {"height": 16, "width": 30, "mines": 99}
     }
 
-    def __init__(self, root, on_start_game, on_show_scores):
+    # Limites pour le mode personnalisé
+    CUSTOM_LIMITS = {
+        "height": {"min": 5, "max": 30},
+        "width": {"min": 5, "max": 35},
+        "mines": {"min": 1, "max": 500}
+    }
+
+    def __init__(self, root, on_start_game, on_show_scores, on_replay_game):
         """Initialize the menu UI.
 
         Args:
             root: Tkinter root window
             on_start_game: Callback for starting a new game
             on_show_scores: Callback for showing high scores
+            on_replay_game: Callback for replaying a previous game
         """
         self.root = root
         self.on_start_game = on_start_game
         self.on_show_scores = on_show_scores
+        self.on_replay_game = on_replay_game
         self.frame = None
         self.custom_frame = None
         self.height_var = tk.StringVar(value="10")
         self.width_var = tk.StringVar(value="10")
         self.mines_var = tk.StringVar(value="10")
         self.difficulty_var = tk.StringVar(value="Facile")
-
-        # Set window size and center it on screen
-        self.root.geometry("600x600")
-        self.root.update_idletasks()
-        window_width = self.root.winfo_width()
-        window_height = self.root.winfo_height()
-        screen_width = self.root.winfo_screenwidth()
-        screen_height = self.root.winfo_screenheight()
-        x = (screen_width // 2) - (window_width // 2)
-        y = (screen_height // 2) - (window_height // 2)
-        self.root.geometry(f"+{x}+{y}")
-
         self.create_menu()
 
     def create_menu(self):
         """Create the main menu elements."""
-        # Frame to contain the menu centered with `place`
         self.frame = ttk.Frame(self.root, padding="20")
-        self.frame.place(relx=0.5, rely=0.5, anchor="center")
+        self.frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
 
         # Title
         title = ttk.Label(self.frame, text="Démineur", font=('TkDefaultFont', 24, 'bold'))
@@ -71,15 +68,27 @@ class MenuUI:
 
         # Height input
         ttk.Label(self.custom_frame, text="Hauteur:").grid(row=0, column=0, padx=5, pady=5)
-        ttk.Entry(self.custom_frame, textvariable=self.height_var, width=10).grid(row=0, column=1, padx=5, pady=5)
+        height_entry = ttk.Entry(self.custom_frame, textvariable=self.height_var, width=10)
+        height_entry.grid(row=0, column=1, padx=5, pady=5)
+        ttk.Label(self.custom_frame,
+                  text=f"(min: {self.CUSTOM_LIMITS['height']['min']}, max: {self.CUSTOM_LIMITS['height']['max']})").grid(
+            row=0, column=2, padx=5, pady=5)
 
         # Width input
         ttk.Label(self.custom_frame, text="Largeur:").grid(row=1, column=0, padx=5, pady=5)
-        ttk.Entry(self.custom_frame, textvariable=self.width_var, width=10).grid(row=1, column=1, padx=5, pady=5)
+        width_entry = ttk.Entry(self.custom_frame, textvariable=self.width_var, width=10)
+        width_entry.grid(row=1, column=1, padx=5, pady=5)
+        ttk.Label(self.custom_frame,
+                  text=f"(min: {self.CUSTOM_LIMITS['width']['min']}, max: {self.CUSTOM_LIMITS['width']['max']})").grid(
+            row=1, column=2, padx=5, pady=5)
 
         # Mines input
         ttk.Label(self.custom_frame, text="Mines:").grid(row=2, column=0, padx=5, pady=5)
-        ttk.Entry(self.custom_frame, textvariable=self.mines_var, width=10).grid(row=2, column=1, padx=5, pady=5)
+        mines_entry = ttk.Entry(self.custom_frame, textvariable=self.mines_var, width=10)
+        mines_entry.grid(row=2, column=1, padx=5, pady=5)
+        ttk.Label(self.custom_frame,
+                  text=f"(min: {self.CUSTOM_LIMITS['mines']['min']}, max: {self.CUSTOM_LIMITS['mines']['max']})").grid(
+            row=2, column=2, padx=5, pady=5)
 
         # Initially hide custom options
         self.custom_frame.grid_remove()
@@ -91,14 +100,46 @@ class MenuUI:
         # Game buttons
         ttk.Button(buttons_frame, text="Nouvelle partie", command=self.start_game).grid(
             row=0, column=0, pady=5, padx=5)
-        ttk.Button(buttons_frame, text="Meilleurs scores", command=self.on_show_scores).grid(
+        ttk.Button(buttons_frame, text="Rejouer une partie", command=self.on_replay_game).grid(
             row=0, column=1, pady=5, padx=5)
+        ttk.Button(buttons_frame, text="Meilleurs scores", command=self.on_show_scores).grid(
+            row=0, column=2, pady=5, padx=5)
         ttk.Button(buttons_frame, text="Quitter", command=self.quit_game, style="Quit.TButton").grid(
-            row=1, column=0, columnspan=2, pady=10)
+            row=1, column=0, columnspan=3, pady=10)
 
         # Style pour le bouton Quitter
         style = ttk.Style()
         style.configure("Quit.TButton", foreground="red")
+
+    def validate_custom_values(self, height, width, mines):
+        """Validate custom game values against limits.
+
+        Args:
+            height (int): Board height
+            width (int): Board width
+            mines (int): Number of mines
+
+        Raises:
+            ValueError: If any value is outside its limits
+        """
+        # Vérifier les limites de hauteur
+        if not self.CUSTOM_LIMITS["height"]["min"] <= height <= self.CUSTOM_LIMITS["height"]["max"]:
+            raise ValueError(
+                f"La hauteur doit être entre {self.CUSTOM_LIMITS['height']['min']} et {self.CUSTOM_LIMITS['height']['max']}")
+
+        # Vérifier les limites de largeur
+        if not self.CUSTOM_LIMITS["width"]["min"] <= width <= self.CUSTOM_LIMITS["width"]["max"]:
+            raise ValueError(
+                f"La largeur doit être entre {self.CUSTOM_LIMITS['width']['min']} et {self.CUSTOM_LIMITS['width']['max']}")
+
+        # Vérifier les limites de mines
+        if not self.CUSTOM_LIMITS["mines"]["min"] <= mines <= self.CUSTOM_LIMITS["mines"]["max"]:
+            raise ValueError(
+                f"Le nombre de mines doit être entre {self.CUSTOM_LIMITS['mines']['min']} et {self.CUSTOM_LIMITS['mines']['max']}")
+
+        # Vérifier que le nombre de mines est inférieur au nombre de cases
+        if mines >= (height * width):
+            raise ValueError("Le nombre de mines doit être inférieur au nombre total de cases")
 
     def toggle_custom_options(self):
         """Show/hide custom game options based on difficulty selection."""
@@ -117,6 +158,8 @@ class MenuUI:
                 height = int(self.height_var.get())
                 width = int(self.width_var.get())
                 mines = int(self.mines_var.get())
+                # Validate custom values
+                self.validate_custom_values(height, width, mines)
             else:
                 # Use predefined values
                 settings = self.DIFFICULTY_LEVELS[difficulty]
@@ -127,8 +170,6 @@ class MenuUI:
             self.on_start_game(height, width, mines)
 
         except ValueError as e:
-            messagebox.showerror("Erreur", "Veuillez entrer des nombres valides")
-        except Exception as e:
             messagebox.showerror("Erreur", str(e))
 
     def quit_game(self):

@@ -1,3 +1,4 @@
+# score_dialog.py
 import tkinter as tk
 from tkinter import ttk
 
@@ -50,28 +51,130 @@ class ScoreDialog:
 class ScoresWindow:
     """Window for displaying high scores."""
 
-    def __init__(self, root, scores):
+    DIFFICULTY_PRESETS = {
+        "Facile": {"width": 10, "height": 10, "mines": 10},
+        "Moyen": {"width": 16, "height": 16, "mines": 40},
+        "Difficile": {"width": 16, "height": 30, "mines": 99}
+    }
+
+    def __init__(self, root, scores, on_replay=None):
         """Initialize the scores window.
 
         Args:
             root: Tkinter root window
             scores (list): List of score dictionaries
+            on_replay: Callback for replaying a game configuration
         """
         self.window = tk.Toplevel(root)
         self.window.title("Meilleurs scores")
-        self.window.geometry("400x300")
+        self.window.geometry("600x500")
+        self.on_replay = on_replay
 
-        # Create text widget for scores
-        text_widget = tk.Text(self.window, wrap=tk.WORD, width=50, height=15)
-        text_widget.pack(padx=10, pady=10)
+        # Create notebook for different difficulty tabs
+        notebook = ttk.Notebook(self.window)
+        notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        # Display scores
-        text_widget.insert(tk.END, "MEILLEURS SCORES\n\n")
-        for i, score in enumerate(scores, 1):
-            text_widget.insert(tk.END,
-                               f"{i}. {score['name']} - {score['time']}s\n"
-                               f"   Grille: {score['width']}x{score['height']}, Mines: {score['mines']}\n"
-                               f"   Date: {score['date']}\n\n"
-                               )
+        # Create tabs for each difficulty
+        self.create_difficulty_tab(notebook, "Facile", scores)
+        self.create_difficulty_tab(notebook, "Moyen", scores)
+        self.create_difficulty_tab(notebook, "Difficile", scores)
+        self.create_difficulty_tab(notebook, "Personnalisé", scores)
 
-        text_widget.config(state=tk.DISABLED)
+    def create_difficulty_tab(self, notebook, difficulty, scores):
+        """Create a tab for a specific difficulty level.
+
+        Args:
+            notebook: Notebook widget
+            difficulty (str): Difficulty level
+            scores (list): List of all scores
+        """
+        tab = ttk.Frame(notebook)
+        notebook.add(tab, text=difficulty)
+
+        # Create scrollable frame
+        canvas = tk.Canvas(tab)
+        scrollbar = ttk.Scrollbar(tab, orient="vertical", command=canvas.yview)
+        scrollable_frame = ttk.Frame(canvas)
+
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Filter scores for this difficulty
+        difficulty_scores = self.filter_scores_by_difficulty(scores, difficulty)
+
+        if not difficulty_scores:
+            ttk.Label(scrollable_frame, text="Aucun score pour cette difficulté").pack(pady=10)
+        else:
+            for i, score in enumerate(difficulty_scores, 1):
+                self.create_score_frame(scrollable_frame, i, score)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+    def create_score_frame(self, parent, rank, score):
+        """Create a frame for displaying a single score.
+
+        Args:
+            parent: Parent widget
+            rank (int): Score rank
+            score (dict): Score data
+        """
+        frame = ttk.Frame(parent)
+        frame.pack(fill=tk.X, padx=5, pady=5)
+
+        # Score information
+        info_frame = ttk.Frame(frame)
+        info_frame.pack(fill=tk.X)
+
+        ttk.Label(info_frame,
+                  text=f"#{rank} - {score['name']}",
+                  font=('TkDefaultFont', 10, 'bold')).pack(side=tk.LEFT, padx=5)
+        ttk.Label(info_frame,
+                  text=f"Temps: {score['time']}s").pack(side=tk.LEFT, padx=5)
+        ttk.Label(info_frame,
+                  text=f"Grille: {score['width']}x{score['height']}, Mines: {score['mines']}").pack(side=tk.LEFT,
+                                                                                                    padx=5)
+
+        if self.on_replay:
+            ttk.Button(info_frame,
+                       text="Rejouer",
+                       command=lambda: self.on_replay(
+                           score['height'],
+                           score['width'],
+                           score['mines'],
+                           score['seed']
+                       )).pack(side=tk.RIGHT, padx=5)
+
+        ttk.Separator(frame, orient='horizontal').pack(fill=tk.X, pady=5)
+
+    def filter_scores_by_difficulty(self, scores, difficulty):
+        """Filter scores by difficulty level.
+
+        Args:
+            scores (list): List of all scores
+            difficulty (str): Difficulty level
+
+        Returns:
+            list: Filtered and sorted scores
+        """
+        if difficulty == "Personnalisé":
+            return [s for s in scores if not any(
+                s['width'] == preset['width'] and
+                s['height'] == preset['height'] and
+                s['mines'] == preset['mines']
+                for preset in self.DIFFICULTY_PRESETS.values()
+            )]
+
+        preset = self.DIFFICULTY_PRESETS.get(difficulty)
+        if preset:
+            return [s for s in scores if
+                    s['width'] == preset['width'] and
+                    s['height'] == preset['height'] and
+                    s['mines'] == preset['mines']]
+
+        return []

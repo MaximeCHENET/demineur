@@ -43,9 +43,15 @@ class GameUI:
         self.frame = ttk.Frame(self.root, padding="10")
         self.frame.place(relx=0.5, rely=0.5, anchor="center")
 
-        # Timer label centré
-        self.timer_label = ttk.Label(self.frame, text="Temps: 0s")
-        self.timer_label.grid(row=0, column=0, columnspan=self.game_board.width, pady=5)
+        # Timer label et Seed label
+        info_frame = ttk.Frame(self.frame)
+        info_frame.grid(row=0, column=0, columnspan=self.game_board.width, pady=5)
+
+        self.timer_label = ttk.Label(info_frame, text="Temps: 0s")
+        self.timer_label.pack(side=tk.LEFT, padx=5)
+
+        seed_label = ttk.Label(info_frame, text=f"Seed: {self.game_board.get_seed()}")
+        seed_label.pack(side=tk.LEFT, padx=5)
 
         # Style pour les boutons de cellules
         style = {'width': 2, 'height': 1, 'font': ('TkDefaultFont', 10, 'bold')}
