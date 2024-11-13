@@ -12,7 +12,7 @@ class MenuUI:
         "Difficile": {"height": 16, "width": 30, "mines": 99}
     }
 
-    # Limites pour le mode personnalisé
+    # Personalised mode limits
     CUSTOM_LIMITS = {
         "height": {"min": 5, "max": 30},
         "width": {"min": 5, "max": 35},
@@ -107,12 +107,12 @@ class MenuUI:
         ttk.Button(buttons_frame, text="Quitter", command=self.quit_game, style="Quit.TButton").grid(
             row=1, column=0, columnspan=3, pady=10)
 
-        # Style pour le bouton Quitter
+        # Quit button style
         style = ttk.Style()
         style.configure("Quit.TButton", foreground="red")
 
     def validate_custom_values(self, height, width, mines):
-        """Validate custom game values against limits.
+        """Validate custom game configuration values against defined limits.
 
         Args:
             height (int): Board height
@@ -120,36 +120,44 @@ class MenuUI:
             mines (int): Number of mines
 
         Raises:
-            ValueError: If any value is outside its limits
+            ValueError: If any value is outside its defined limits
         """
-        # Vérifier les limites de hauteur
+        # Verify height limits
         if not self.CUSTOM_LIMITS["height"]["min"] <= height <= self.CUSTOM_LIMITS["height"]["max"]:
             raise ValueError(
                 f"La hauteur doit être entre {self.CUSTOM_LIMITS['height']['min']} et {self.CUSTOM_LIMITS['height']['max']}")
 
-        # Vérifier les limites de largeur
+        # Verify width limits
         if not self.CUSTOM_LIMITS["width"]["min"] <= width <= self.CUSTOM_LIMITS["width"]["max"]:
             raise ValueError(
                 f"La largeur doit être entre {self.CUSTOM_LIMITS['width']['min']} et {self.CUSTOM_LIMITS['width']['max']}")
 
-        # Vérifier les limites de mines
+        # Verify limits of mines
         if not self.CUSTOM_LIMITS["mines"]["min"] <= mines <= self.CUSTOM_LIMITS["mines"]["max"]:
             raise ValueError(
                 f"Le nombre de mines doit être entre {self.CUSTOM_LIMITS['mines']['min']} et {self.CUSTOM_LIMITS['mines']['max']}")
 
-        # Vérifier que le nombre de mines est inférieur au nombre de cases
+        # Verify that there is more cells than mines
         if mines >= (height * width):
             raise ValueError("Le nombre de mines doit être inférieur au nombre total de cases")
 
     def toggle_custom_options(self):
-        """Show/hide custom game options based on difficulty selection."""
+        """Show or hide custom game options based on difficulty selection.
+
+        Displays custom options frame when 'Custom' difficulty is selected,
+        hides it otherwise.
+        """
         if self.difficulty_var.get() == "Personnalisé":
             self.custom_frame.grid()
         else:
             self.custom_frame.grid_remove()
 
     def start_game(self):
-        """Start a new game with selected options."""
+        """Start a new game with selected options.
+
+        Validates game settings and initiates a new game with either
+        predefined or custom configuration.
+        """
         try:
             difficulty = self.difficulty_var.get()
 
@@ -173,11 +181,14 @@ class MenuUI:
             messagebox.showerror("Erreur", str(e))
 
     def quit_game(self):
-        """Quit the game after confirmation."""
+        """Quit the game after user confirmation.
+
+        Displays confirmation dialog before closing the application.
+        """
         if messagebox.askokcancel("Quitter", "Voulez-vous vraiment quitter le jeu ?"):
             self.root.quit()
 
     def destroy(self):
-        """Clean up the UI elements."""
+        """Clean up and remove all UI elements."""
         if self.frame:
             self.frame.destroy()

@@ -1,4 +1,3 @@
-# score_dialog.py
 import tkinter as tk
 from tkinter import ttk
 
@@ -144,7 +143,7 @@ class ScoresWindow:
                   text=f"Grille: {score['width']}x{score['height']}, Mines: {score['mines']}").pack(side=tk.LEFT,
                                                                                                     padx=5)
 
-        # Ajouter l'affichage de la seed si elle existe
+        # Add the seed if it exists
         if 'seed' in score:
             ttk.Label(info_frame,
                       text=f"Seed: {score['seed']}").pack(side=tk.LEFT, padx=5)
@@ -174,19 +173,19 @@ class ScoresWindow:
             seed (int): Game seed
             first_click (tuple): First click coordinates
         """
-        self.close()  # Ferme la fenêtre des scores
+        self.close()  # Close the scores window
         if self.on_replay:
             self.on_replay(height, width, mines, seed, first_click)
 
     def filter_scores_by_difficulty(self, scores, difficulty):
-        """Filter scores by difficulty level.
+        """Filter scores to show only those matching the selected difficulty.
 
         Args:
-            scores (list): List of all scores
-            difficulty (str): Difficulty level
+            scores (list): List of all score records
+            difficulty (str): Selected difficulty level
 
         Returns:
-            list: Filtered and sorted scores
+            list: Filtered list of scores matching the difficulty criteria
         """
         if difficulty == "Personnalisé":
             return [s for s in scores if not any(

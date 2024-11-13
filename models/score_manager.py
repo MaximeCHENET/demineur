@@ -11,7 +11,7 @@ class ScoreManager:
         """Initialize the score manager.
 
         Args:
-            scores_file (str): Path to the scores file
+            scores_file (str): Path to the scores storage file
         """
         self.scores_file = Path(scores_file)
         self._ensure_file_exists()
@@ -31,8 +31,8 @@ class ScoreManager:
             width (int): Board width
             height (int): Board height
             mines (int): Number of mines
-            seed (int): Board seed
-            first_click (tuple): First click coordinates (x, y)
+            seed (int): Board seed for replay
+            first_click (tuple): First click coordinates for replay
         """
         scores = []
         if self.scores_file.exists():
@@ -51,7 +51,7 @@ class ScoreManager:
         }
 
         scores.append(new_score)
-        # Trier d'abord par configuration puis par temps
+        # Sort scores by board configuration and then by completion time
         scores.sort(key=lambda x: (
             x['width'],
             x['height'],
@@ -66,7 +66,7 @@ class ScoreManager:
         """Retrieve all high scores.
 
         Returns:
-            list: List of all high score dictionaries
+            list: List of high score dictionaries, sorted by configuration and time
         """
         if not self.scores_file.exists():
             return []
