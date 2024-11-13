@@ -22,7 +22,7 @@ class ScoreManager:
             with open(self.scores_file, 'w') as f:
                 json.dump([], f)
 
-    def save_score(self, player_name, elapsed_time, width, height, mines):
+    def save_score(self, player_name, elapsed_time, width, height, mines, seed, first_click):
         """Save a new score to the high scores file.
 
         Args:
@@ -31,6 +31,8 @@ class ScoreManager:
             width (int): Board width
             height (int): Board height
             mines (int): Number of mines
+            seed (int): Board seed
+            first_click (tuple): First click coordinates (x, y)
         """
         scores = []
         if self.scores_file.exists():
@@ -43,7 +45,9 @@ class ScoreManager:
             'width': width,
             'height': height,
             'mines': mines,
-            'date': time.strftime('%Y-%m-%d %H:%M:%S')
+            'date': time.strftime('%Y-%m-%d %H:%M:%S'),
+            'seed': seed,
+            'first_click': first_click
         }
 
         scores.append(new_score)

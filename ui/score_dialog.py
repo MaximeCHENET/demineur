@@ -80,6 +80,10 @@ class ScoresWindow:
         self.create_difficulty_tab(notebook, "Difficile", scores)
         self.create_difficulty_tab(notebook, "Personnalisé", scores)
 
+    def close(self):
+        """Close the scores window."""
+        self.window.destroy()
+
     def create_difficulty_tab(self, notebook, difficulty, scores):
         """Create a tab for a specific difficulty level.
 
@@ -140,17 +144,39 @@ class ScoresWindow:
                   text=f"Grille: {score['width']}x{score['height']}, Mines: {score['mines']}").pack(side=tk.LEFT,
                                                                                                     padx=5)
 
-        if self.on_replay:
+        # Ajouter l'affichage de la seed si elle existe
+        if 'seed' in score:
+            ttk.Label(info_frame,
+                      text=f"Seed: {score['seed']}").pack(side=tk.LEFT, padx=5)
+
+        if self.on_replay and 'seed' in score and 'first_click' in score:
             ttk.Button(info_frame,
                        text="Rejouer",
-                       command=lambda: self.on_replay(
+                       command=lambda: self._handle_replay(
                            score['height'],
                            score['width'],
                            score['mines'],
-                           score['seed']
+                           score['seed'],
+                           score['first_click']
                        )).pack(side=tk.RIGHT, padx=5)
 
         ttk.Separator(frame, orient='horizontal').pack(fill=tk.X, pady=5)
+
+    def _handle_replay(self, height, width, mines, seed, first_click):
+        """Handle replay button click.
+
+        Closes the scores window and calls the replay callback.
+
+        Args:
+            height (int): Board height
+            width (int): Board width
+            mines (int): Number of mines
+            seed (int): Game seed
+            first_click (tuple): First click coordinates
+        """
+        self.close()  # Ferme la fenêtre des scores
+        if self.on_replay:
+            self.on_replay(height, width, mines, seed, first_click)
 
     def filter_scores_by_difficulty(self, scores, difficulty):
         """Filter scores by difficulty level.
